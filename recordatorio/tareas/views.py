@@ -122,17 +122,16 @@ def detalles_tarea(request, tarea_id):
     }
     return JsonResponse(detalles)
 
+@login_required
 def editar_tarea(request, tarea_id):
     tarea = get_object_or_404(Tarea, id=tarea_id, usuario=request.user)
 
     if request.method == 'POST':
-        # Procesar los datos del formulario de edición
-        tarea.titulo = request.POST['titulo']
-        tarea.descripcion = request.POST['descripcion']
-        # Actualiza los demás campos de la tarea
+        form = TareaForm(request.POST, instance=tarea)
+        if form.is_valid():
+            form.save()
+            return redirect('detalle_tarea', tarea_id=tarea_id)
+    else:
+        form = TareaForm(instance=tarea)
 
-        tarea.save()
-
-        return JsonResponse({'success': True})
-
-    return JsonResponse({'success': False})
+    return render(request, 'tareas/editar_tarea.html', {'form': form, 'tarea': tarea})
