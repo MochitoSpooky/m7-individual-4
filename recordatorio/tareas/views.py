@@ -58,9 +58,19 @@ def eliminar_tarea(request, tarea_id):
 def lista_tareas(request):
     usuario = request.user
     tareas = Tarea.objects.filter(usuario=usuario).order_by('fecha_vencimiento')
+
+    estado = request.GET.get('estado')
+    etiqueta = request.GET.get('etiqueta')
+
+    if estado:
+        tareas = tareas.filter(estado=estado)
+
+    if etiqueta:
+        tareas = tareas.filter(etiqueta__nombre=etiqueta)
+
     lista_e = Etiqueta.objects.all()
 
-    return render(request, 'tareas/lista_tareas.html', {'tareas': tareas,'etiquetas': lista_e})
+    return render(request, 'tareas/lista_tareas.html', {'tareas': tareas, 'etiquetas': lista_e, 'usuario': usuario})
 
 @login_required
 def detalle_tarea(request, tarea_id):
